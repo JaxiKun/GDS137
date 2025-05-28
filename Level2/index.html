@@ -13,10 +13,11 @@
 <body>
     <canvas id="canvas" width="500" height="500"></canvas>
     <script src="gameobject.js"></script>
+    <script src="controls.js"></script>
     <script>
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
-        var paddle = new Paddle(0, 200, 20, 100, 'blue'); // Paddle properties moved to middle left
+        var paddle = new Paddle(0, 200, 20, 100, 'blue');
 
         var mainTimer = setInterval(animate, 1000/60);
         function animate() {
