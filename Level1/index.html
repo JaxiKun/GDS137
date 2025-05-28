@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Example</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+        function Ball(x, y, width, height, color, force, vx, vy) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.force = force;
+            this.vx = vx;
+            this.vy = vy;
+
+            this.draw = function(context) {
+                context.beginPath();
+                context.arc(this.x, this.y, this.width / 2, 0, 360 * Math.PI / 180, true);
+                context.closePath();
+                context.fillStyle = this.color;
+                context.fill();
+            };
+
+            this.move = function() {
+                this.x += this.vx;
+                this.y += this.vy;
+            };
+        }
+
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var ball = new Ball(250, 250, 50, 50, 'red', 0, 2, 2);
+
+        function animate() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            ball.move();
+            ball.draw(context);
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
