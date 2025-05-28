@@ -34,6 +34,23 @@
             this.move = function() {
                 this.x += this.vx;
                 this.y += this.vy;
+
+                // Bounce off walls
+                if (this.x + this.width / 2 > canvas.width) {
+                    this.x = canvas.width - this.width / 2;
+                    this.vx = -this.vx;
+                } else if (this.x - this.width / 2 < 0) {
+                    this.x = this.width / 2;
+                    this.vx = -this.vx;
+                }
+
+                if (this.y + this.height / 2 > canvas.height) {
+                    this.y = canvas.height - this.height / 2;
+                    this.vy = -this.vy;
+                } else if (this.y - this.height / 2 < 0) {
+                    this.y = this.height / 2;
+                    this.vy = -this.vy;
+                }
             };
         }
 
