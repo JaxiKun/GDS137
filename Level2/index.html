@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paddle Game Example</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script src="gameobject.js"></script>
+    <script>
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var paddle = new Paddle(0, 200, 20, 100, 'blue'); // Paddle properties moved to middle left
+
+        var mainTimer = setInterval(animate, 1000/60);
+        function animate() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            paddle.move();
+            paddle.draw(context);
+        }
+
+        animate();
+
+        function Paddle(x, y, width, height, color) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+
+            this.draw = function(context) {
+                context.fillStyle = this.color;
+                context.fillRect(this.x, this.y, this.width, this.height);
+            };
+
+            this.move = function() {
+                // Paddle movement logic can be added here
+            };
+        }
+    </script>
+</body>
+</html>
