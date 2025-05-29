@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paddle Game Example</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <div id="loseScreen" style="display:none; position:absolute; top:0; left:0; width:500px; height:500px; background:rgba(0,0,0,0.8); color:white; text-align:center;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">
+            <div style="font-size:2em; margin-bottom:30px;">You Lose!</div>
+            <button id="restartBtn" style="font-size:1em;">Restart</button>
+        </div>
+    </div>
+    <script src="gameobject.js"></script>
+    <script src="controls.js"></script>
+    <script>
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var loseScreen = document.getElementById('loseScreen');
+        var restartBtn = document.getElementById('restartBtn');
+        var intervalId;
+        var paddle, paddle2, ball;
+        var keys = {};
+        document.addEventListener('keydown', function(event) {
+            keys[event.key] = true;
+        });
+        document.addEventListener('keyup', function(event) {
+            keys[event.key] = false;
+        });
+
+        function startGame() {
+            paddle = new Paddle(0, 200, 20, 100, 'blue');
+            paddle2 = new Paddle(canvas.width - 20, 200, 20, 100, 'green');
+            ball = new Ball(250, 250, 50, 50, 'red', 5, 4, 10);
+            loseScreen.style.display = 'none';
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(animate, 1000/60);
+        }
+
+        function animate() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Paddle controls
+            if (keys['w']) paddle.y = Math.max(0, paddle.y - 5);
+            if (keys['s']) paddle.y = Math.min(canvas.height - paddle.height, paddle.y + 5);
+            if (keys['ArrowUp']) paddle2.y = Math.max(0, paddle2.y - 5);
+            if (keys['ArrowDown']) paddle2.y = Math.min(canvas.height - paddle2.height, paddle2.y + 5);
+
+            // Ball-paddle collision (left)
+            if (ball.isCollidingWith(paddle)) {
+                var hitY = ball.y - paddle.y;
+                var third = paddle.height / 3;
+                if (hitY < third) {
+                    ball.vx = Math.abs(ball.vx);
+                    ball.vy = -Math.abs(ball.vx);
+                } else if (hitY < 2 * third) {
+                    ball.vx = Math.abs(ball.vx);
+                } else {
+                    ball.vx = Math.abs(ball.vx);
+                    ball.vy = Math.abs(ball.vx);
+                }
+                ball.x = paddle.right + ball.width / 2;
+                ball.changeColor();
+            }
+
+            // Ball-paddle2 collision (right)
+            if (ball.isCollidingWith(paddle2)) {
+                var hitY = ball.y - paddle2.y;
+                var third = paddle2.height / 3;
+                if (hitY < third) {
+                    ball.vx = -Math.abs(ball.vx);
+                    ball.vy = -Math.abs(ball.vx);
+                } else if (hitY < 2 * third) {
+                    ball.vx = -Math.abs(ball.vx);
+                } else {
+                    ball.vx = -Math.abs(ball.vx);
+                    ball.vy = Math.abs(ball.vx);
+                }
+                ball.x = paddle2.left - ball.width / 2;
+                ball.changeColor();
+            }
+
+            paddle.draw(context);
+            paddle2.draw(context);
+            ball.move();
+            ball.draw(context);
+
+            // Reset ball if it hits left or right wall
+            if (ball.left <= 0 || ball.right >= canvas.width) {
+                resetBall();
+            }
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            // Give the ball a random direction (optional)
+            ball.vx = (Math.random() > 0.5 ? 1 : -1) * Math.abs(ball.vx);
+            ball.vy = (Math.random() > 0.5 ? 1 : -1) * Math.abs(ball.vy);
+        }
+
+        function gameOver() {
+            clearInterval(intervalId);
+            loseScreen.style.display = 'block';
+        }
+
+        restartBtn.onclick = function() {
+            startGame();
+        };
+
+        
+        function Ball(x, y, width, height, color, force, vx, vy) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.force = force;
+            this.vx = vx;
+            this.vy = vy;
+
+            Object.defineProperties(this, {
+                top:    { get: function() { return this.y - this.height / 2; } },
+                bottom: { get: function() { return this.y + this.height / 2; } },
+                left:   { get: function() { return this.x - this.width / 2; } },
+                right:  { get: function() { return this.x + this.width / 2; } }
+            });
+
+            this.draw = function(context) {
+                context.beginPath();
+                context.arc(this.x, this.y, this.width / 2, 0, 360 * Math.PI / 180, true);
+                context.closePath();
+                context.fillStyle = this.color;
+                context.fill();
+            };
+
+            this.move = function() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off walls (except left wall for lose condition)
+                if (this.right > canvas.width) {
+                    this.x = canvas.width - this.width / 2;
+                    this.vx = -this.vx;
+                    this.changeColor();
+                }
+                if (this.left < 0) {
+                    this.x = this.width / 2;
+                    // Don't bounce, handled in animate for lose condition
+                }
+
+                if (this.bottom > canvas.height) {
+                    this.y = canvas.height - this.height / 2;
+                    this.vy = -this.vy;
+                    this.changeColor();
+                } else if (this.top < 0) {
+                    this.y = this.height / 2;
+                    this.vy = -this.vy;
+                    this.changeColor();
+                }
+            };
+
+            this.changeColor = function() {
+                this.color = '#' + Math.floor(Math.random()*16777215).toString(16);
+            };
+
+            // Bounding box collision detection
+            this.isCollidingWith = function(other) {
+                return !(this.right < other.left ||
+                         this.left > other.right ||
+                         this.bottom < other.top ||
+                         this.top > other.bottom);
+            };
+        }
+
+        function Paddle(x, y, width, height, color) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+
+            Object.defineProperties(this, {
+                top:    { get: function() { return this.y; } },
+                bottom: { get: function() { return this.y + this.height; } },
+                left:   { get: function() { return this.x; } },
+                right:  { get: function() { return this.x + this.width; } }
+            });
+
+            this.draw = function(context) {
+                context.fillStyle = this.color;
+                context.fillRect(this.x, this.y, this.width, this.height);
+            };
+
+            this.move = function() {
+                // Paddle movement logic (if any)
+            };
+        }
+
+        // Start the game initially
+        startGame();
+    </script>
+</body>
+</html>
