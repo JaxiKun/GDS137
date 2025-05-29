@@ -22,6 +22,14 @@
 
         function animate() {
             context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Ball-paddle collision
+            if (ball.isCollidingWith(paddle)) {
+                ball.vx = Math.abs(ball.vx); // Ensure ball moves right
+                ball.x = paddle.right + ball.width / 2; // Prevents sticking
+                ball.changeColor();
+            }
+
             paddle.move();
             paddle.draw(context);
             ball.move();
@@ -40,6 +48,13 @@
             this.vx = vx;
             this.vy = vy;
 
+            Object.defineProperties(this, {
+                top:    { get: function() { return this.y - this.height / 2; } },
+                bottom: { get: function() { return this.y + this.height / 2; } },
+                left:   { get: function() { return this.x - this.width / 2; } },
+                right:  { get: function() { return this.x + this.width / 2; } }
+            });
+
             this.draw = function(context) {
                 context.beginPath();
                 context.arc(this.x, this.y, this.width / 2, 0, 360 * Math.PI / 180, true);
@@ -53,21 +68,21 @@
                 this.y += this.vy;
 
                 // Bounce off walls
-                if (this.x + this.width / 2 > canvas.width) {
+                if (this.right > canvas.width) {
                     this.x = canvas.width - this.width / 2;
                     this.vx = -this.vx;
                     this.changeColor();
-                } else if (this.x - this.width / 2 < 0) {
+                } else if (this.left < 0) {
                     this.x = this.width / 2;
                     this.vx = -this.vx;
                     this.changeColor();
                 }
 
-                if (this.y + this.height / 2 > canvas.height) {
+                if (this.bottom > canvas.height) {
                     this.y = canvas.height - this.height / 2;
                     this.vy = -this.vy;
                     this.changeColor();
-                } else if (this.y - this.height / 2 < 0) {
+                } else if (this.top < 0) {
                     this.y = this.height / 2;
                     this.vy = -this.vy;
                     this.changeColor();
@@ -76,6 +91,14 @@
 
             this.changeColor = function() {
                 this.color = '#' + Math.floor(Math.random()*16777215).toString(16);
+            };
+
+            // Bounding box collision detection
+            this.isCollidingWith = function(other) {
+                return !(this.right < other.left ||
+                         this.left > other.right ||
+                         this.bottom < other.top ||
+                         this.top > other.bottom);
             };
         }
 
@@ -86,13 +109,20 @@
             this.height = height;
             this.color = color;
 
+            Object.defineProperties(this, {
+                top:    { get: function() { return this.y; } },
+                bottom: { get: function() { return this.y + this.height; } },
+                left:   { get: function() { return this.x; } },
+                right:  { get: function() { return this.x + this.width; } }
+            });
+
             this.draw = function(context) {
                 context.fillStyle = this.color;
                 context.fillRect(this.x, this.y, this.width, this.height);
             };
 
             this.move = function() {
-                // Paddle movement logic can be added here
+               
             };
         }
     </script>
