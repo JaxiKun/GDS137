@@ -18,15 +18,66 @@
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
         var paddle = new Paddle(0, 200, 20, 100, 'blue');
+        var ball = new Ball(250, 250, 50, 50, 'red', 5, 4, 10); // Ball from Level1
 
-        var mainTimer = setInterval(animate, 1000/60);
         function animate() {
             context.clearRect(0, 0, canvas.width, canvas.height);
             paddle.move();
             paddle.draw(context);
+            ball.move();
+            ball.draw(context);
         }
 
-        animate();
+        setInterval(animate, 1000/60);
+
+        function Ball(x, y, width, height, color, force, vx, vy) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.force = force;
+            this.vx = vx;
+            this.vy = vy;
+
+            this.draw = function(context) {
+                context.beginPath();
+                context.arc(this.x, this.y, this.width / 2, 0, 360 * Math.PI / 180, true);
+                context.closePath();
+                context.fillStyle = this.color;
+                context.fill();
+            };
+
+            this.move = function() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off walls
+                if (this.x + this.width / 2 > canvas.width) {
+                    this.x = canvas.width - this.width / 2;
+                    this.vx = -this.vx;
+                    this.changeColor();
+                } else if (this.x - this.width / 2 < 0) {
+                    this.x = this.width / 2;
+                    this.vx = -this.vx;
+                    this.changeColor();
+                }
+
+                if (this.y + this.height / 2 > canvas.height) {
+                    this.y = canvas.height - this.height / 2;
+                    this.vy = -this.vy;
+                    this.changeColor();
+                } else if (this.y - this.height / 2 < 0) {
+                    this.y = this.height / 2;
+                    this.vy = -this.vy;
+                    this.changeColor();
+                }
+            };
+
+            this.changeColor = function() {
+                this.color = '#' + Math.floor(Math.random()*16777215).toString(16);
+            };
+        }
 
         function Paddle(x, y, width, height, color) {
             this.x = x;
