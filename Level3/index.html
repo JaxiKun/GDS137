@@ -89,6 +89,17 @@
                 ball.changeColor();
             }
 
+            // Draw center line
+            context.save();
+            context.strokeStyle = "black";
+            context.beginPath();
+            context.moveTo(canvas.width / 2, 0);
+            context.lineTo(canvas.width / 2, canvas.height);
+            context.closePath();
+            context.lineWidth = 4;
+            context.stroke();
+            context.restore();
+
             paddle.draw(context);
             paddle2.draw(context);
             ball.move();
