@@ -28,6 +28,8 @@
         var intervalId;
         var paddle, paddle2, ball;
         var keys = {};
+        var p1Wins = 0;
+        var p2Wins = 0;
         document.addEventListener('keydown', function(event) {
             keys[event.key] = true;
         });
@@ -92,8 +94,19 @@
             ball.move();
             ball.draw(context);
 
-            // Reset ball if it hits left or right wall
-            if (ball.left <= 0 || ball.right >= canvas.width) {
+            // Draw scores
+            context.font = "24px Arial";
+            context.fillStyle = "black";
+            context.fillText("Player 1: " + p1Wins, 30, 40);
+            context.fillText("Player 2: " + p2Wins, canvas.width - 170, 40);
+
+            // Reset ball and update scores
+            if (ball.left <= 0) {
+                p2Wins++;
+                resetBall();
+            }
+            if (ball.right >= canvas.width) {
+                p1Wins++;
                 resetBall();
             }
         }
