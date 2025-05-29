@@ -41,7 +41,24 @@
 
             // Ball-paddle collision
             if (ball.isCollidingWith(paddle)) {
-                ball.vx = Math.abs(ball.vx); // Ensure ball moves right
+                // Calculate where the ball hit the paddle
+                var hitY = ball.y - paddle.y;
+                var third = paddle.height / 3;
+
+                if (hitY < third) {
+                    // Top third: bounce up at 45 degrees
+                    ball.vx = Math.abs(ball.vx);
+                    ball.vy = -Math.abs(ball.vx);
+                } else if (hitY < 2 * third) {
+                    // Middle third: bounce normally (reverse x)
+                    ball.vx = Math.abs(ball.vx);
+                    // vy stays the same
+                } else {
+                    // Bottom third: bounce down at 45 degrees
+                    ball.vx = Math.abs(ball.vx);
+                    ball.vy = Math.abs(ball.vx);
+                }
+
                 ball.x = paddle.right + ball.width / 2; // Prevents sticking
                 ball.changeColor();
             }
