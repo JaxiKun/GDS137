@@ -12,13 +12,29 @@
 </head>
 <body>
     <canvas id="canvas" width="500" height="500"></canvas>
+    <div id="loseScreen" style="display:none; position:absolute; top:0; left:0; width:500px; height:500px; background:rgba(0,0,0,0.8); color:white; text-align:center;">
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">
+            <div style="font-size:2em; margin-bottom:30px;">You Lose!</div>
+            <button id="restartBtn" style="font-size:1em;">Restart</button>
+        </div>
+    </div>
     <script src="gameobject.js"></script>
     <script src="controls.js"></script>
     <script>
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
-        var paddle = new Paddle(0, 200, 20, 100, 'blue');
-        var ball = new Ball(250, 250, 50, 50, 'red', 5, 4, 10); // Ball from Level1
+        var loseScreen = document.getElementById('loseScreen');
+        var restartBtn = document.getElementById('restartBtn');
+        var intervalId;
+        var paddle, ball;
+
+        function startGame() {
+            paddle = new Paddle(0, 200, 20, 100, 'blue');
+            ball = new Ball(250, 250, 50, 50, 'red', 5, 4, 10);
+            loseScreen.style.display = 'none';
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(animate, 1000/60);
+        }
 
         function animate() {
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -34,10 +50,23 @@
             paddle.draw(context);
             ball.move();
             ball.draw(context);
+
+            // Lose condition: ball hits left wall and is not colliding with paddle
+            if (ball.left <= 0 && !ball.isCollidingWith(paddle)) {
+                gameOver();
+            }
         }
 
-        setInterval(animate, 1000/60);
+        function gameOver() {
+            clearInterval(intervalId);
+            loseScreen.style.display = 'block';
+        }
 
+        restartBtn.onclick = function() {
+            startGame();
+        };
+
+        
         function Ball(x, y, width, height, color, force, vx, vy) {
             this.x = x;
             this.y = y;
@@ -67,15 +96,15 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Bounce off walls
+                // Bounce off walls (except left wall for lose condition)
                 if (this.right > canvas.width) {
                     this.x = canvas.width - this.width / 2;
                     this.vx = -this.vx;
                     this.changeColor();
-                } else if (this.left < 0) {
+                }
+                if (this.left < 0) {
                     this.x = this.width / 2;
-                    this.vx = -this.vx;
-                    this.changeColor();
+                    // Don't bounce, handled in animate for lose condition
                 }
 
                 if (this.bottom > canvas.height) {
@@ -122,9 +151,12 @@
             };
 
             this.move = function() {
-               
+                // Paddle movement logic (if any)
             };
         }
+
+        // Start the game initially
+        startGame();
     </script>
 </body>
 </html>
