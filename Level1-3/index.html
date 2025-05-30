@@ -6,6 +6,11 @@
 </head>
 <body>
     <canvas id="myCanvas" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+    <!-- Touch controls -->
+    <div id="touch-controls" style="width:1000px; margin:auto; text-align:center; margin-top:10px;">
+        <button id="leftBtn" style="width:120px; height:60px; font-size:2em; margin-right:40px;">&#8592; Left</button>
+        <button id="rightBtn" style="width:120px; height:60px; font-size:2em;">Right &#8594;</button>
+    </div>
     <script>
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d');
@@ -51,6 +56,50 @@
             }
         });
 
+        // Touch controls for paddle
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+
+        // Touch/Mouse down
+        leftBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            leftPressed = true;
+        });
+        leftBtn.addEventListener('mousedown', function(e) {
+            leftPressed = true;
+        });
+
+        rightBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            rightPressed = true;
+        });
+        rightBtn.addEventListener('mousedown', function(e) {
+            rightPressed = true;
+        });
+
+        // Touch/Mouse up
+        leftBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            leftPressed = false;
+        });
+        leftBtn.addEventListener('mouseup', function(e) {
+            leftPressed = false;
+        });
+        leftBtn.addEventListener('mouseleave', function(e) {
+            leftPressed = false;
+        });
+
+        rightBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            rightPressed = false;
+        });
+        rightBtn.addEventListener('mouseup', function(e) {
+            rightPressed = false;
+        });
+        rightBtn.addEventListener('mouseleave', function(e) {
+            rightPressed = false;
+        });
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -67,7 +116,7 @@
             ctx.closePath();
 
             // Draw paddle 50px from bottom
-            ctx.fillStyle = '#333333'; // dark grey paddle
+            ctx.fillStyle = 'cyan'; // cyan paddle
             ctx.fillRect(paddleX, paddleY, paddleWidth, paddleHeight);
 
             // Draw line from center of ball to center of paddle
