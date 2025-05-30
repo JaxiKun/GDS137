@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Example</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ball properties
+        const ballRadius = 40;
+        let centerX = canvas.width / 2;
+        let centerY = canvas.height / 2 - 100; // Start ball higher
+        let vx = 1;
+        let vy = 0;
+        const gravity = 0.2;
+        let bounceMultiplier = 1.5; // Ball bounces higher each time
+
+        // Paddle properties
+        const paddleWidth = 250;
+        const paddleHeight = 40;
+        let paddleX = (canvas.width - paddleWidth) / 2; // Change to let so it can move
+        const paddleY = canvas.height - 50 - paddleHeight;
+        const paddleSpeed = 10; // Speed of paddle movement
+
+        // Keyboard controls
+        let leftPressed = false;
+        let rightPressed = false;
+
+        // Score variable
+        let score = 0;
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'a' || e.key === 'A') {
+                leftPressed = true;
+            }
+            if (e.key === 'd' || e.key === 'D') {
+                rightPressed = true;
+            }
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'a' || e.key === 'A') {
+                leftPressed = false;
+            }
+            if (e.key === 'd' || e.key === 'D') {
+                rightPressed = false;
+            }
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw score at x:80, y:25
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#333333'; // dark grey
+            ctx.fillText('Score: ' + score, 80, 25);
+
+            // Draw magenta ball at center
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = 'magenta';
+            ctx.fill();
+            ctx.closePath();
+
+            // Draw paddle 50px from bottom
+            ctx.fillStyle = '#333333'; // dark grey paddle
+            ctx.fillRect(paddleX, paddleY, paddleWidth, paddleHeight);
+
+            // Draw line from center of ball to center of paddle
+            const paddleCenterX = paddleX + paddleWidth / 2;
+            const paddleCenterY = paddleY + paddleHeight / 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(paddleCenterX, paddleCenterY);
+            ctx.strokeStyle = '#333333'; // dark grey
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        function update() {
+            // Paddle movement
+            if (leftPressed && paddleX > 0) {
+                paddleX -= paddleSpeed;
+            }
+            if (rightPressed && paddleX < canvas.width - paddleWidth) {
+                paddleX += paddleSpeed;
+            }
+
+            centerX += vx;
+            centerY += vy;
+            vy += gravity;
+
+            // Bounce off the paddle
+            if (
+                centerY + ballRadius > paddleY && // Ball at paddle level
+                centerY + ballRadius < paddleY + paddleHeight && // Not below paddle
+                centerX > paddleX && centerX < paddleX + paddleWidth && // Ball horizontally over paddle
+                vy > 0 // Only if moving down
+            ) {
+                centerY = paddleY - ballRadius;
+                vy *= -0.7 * bounceMultiplier; // lose some energy on bounce, but bounce higher each time
+                bounceMultiplier += 0.05; // Increase bounce height each hit
+
+                score += 1; // Increment score when ball bounces on paddle
+
+                // Calculate where the ball hit the paddle
+                const hitX = centerX - paddleX;
+                const section = paddleWidth / 6;
+                const force = 10; // ball.force
+
+                if (hitX < section) {
+                    // Outer left 1/6
+                    vx = -force;
+                } else if (hitX < section * 2) {
+                    // Inner left 1/6
+                    vx = -Math.abs(vx);
+                } else if (hitX < section * 4) {
+                    // Center 1/3 (normal bounce)
+                    // vx remains unchanged
+                } else if (hitX < section * 5) {
+                    // Inner right 1/6
+                    vx = Math.abs(vx);
+                } else {
+                    // Outer right 1/6
+                    vx = force;
+                }
+            }
+
+            // Bounce off the bottom
+            if (centerY + ballRadius > canvas.height) {
+                centerY = canvas.height - ballRadius;
+                vy *= -0.7;
+                bounceMultiplier = 1.1; // Reset bounce multiplier if it hits the floor
+            }
+
+            // Bounce off the sides
+            if (centerX + ballRadius > canvas.width || centerX - ballRadius < 0) {
+                vx *= -1;
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+    </script>
+</body>
+</html>
