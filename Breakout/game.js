@@ -158,6 +158,7 @@ function collisionDetection() {
                 if(ball.x > b.x && ball.x < b.x+brickWidth &&
                    ball.y > b.y && ball.y < b.y+brickHeight) {
                     ball.dy = -ball.dy;
+                    ball.color = randomColor(); // <--- Add this line
                     b.status = 0;
                     b.respawn = 10 * 60; // 10 seconds at 60fps
                     // 10% chance to spawn paddle powerup
@@ -267,6 +268,12 @@ function drawGameOver() {
     ctx.textAlign = "start";
 }
 
+function randomColor() {
+    // Returns a random bright color
+    const h = Math.floor(Math.random() * 360);
+    return `hsl(${h}, 90%, 60%)`;
+}
+
 function draw() {
     if(gameOver) {
         drawGameOver();
@@ -314,6 +321,7 @@ function draw() {
     if(ball.x > paddle.x && ball.x < paddle.x + paddle.width &&
        ball.y + ball.radius > paddle.y && ball.y - ball.radius < paddle.y + paddle.height) {
         ball.dy = -ball.dy;
+        ball.color = randomColor(); // <--- Add this line
         // Add some "english" based on where it hits the paddle
         let hitPos = (ball.x - (paddle.x + paddle.width/2)) / (paddle.width/2);
         ball.dx = 1.5 * hitPos; // was 2 * hitPos
