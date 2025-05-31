@@ -143,7 +143,7 @@ function animate()
 	//---------Run this program first.
 	//---------Get the pearl to open the door--------------------------------------------------------------------------------------------
 	//---------Hint: you'll need a new variable to keep track of the key-----------------------------------------------------------------
-	
+
 	// 1. Add a variable to track if the player has the pearl
 	var hasPearl = false;
 
@@ -151,44 +151,20 @@ function animate()
 	{
 		goal.y = 10000;
 		hasPearl = true; // Player has collected the pearl
+		console.log("Player has the pearl!"); // Log when the player gets the pearl
+		player.color = "#ff00ff"; // Change player color when touching the pearl
 	}
 
-	// 2. If the player has the pearl, allow them to clip through the door and make the door disappear when clipped through
-	if (hasPearl) {
-		// Skip all platform1 collision checks so player can clip through
-		// Make the door disappear when the player actually overlaps (clips through) the door
-		if (
-			platform1.visible !== false &&
-			player.hitTestObject(platform1)
-		) {
-			platform1.visible = false;
-			platform1.y = -1000;
-		}
-	} else {
-		// Keep platform1 collision checks active
-		while(platform1.hitTestPoint(player.top()) && player.vy <=0)
-		{
-			player.y++;
-			player.vy = 0;
-		}
-		while(platform1.hitTestPoint(player.bottom()) && player.vy >=0)
-		{
-			player.y--;
-			player.vy = 0;
-			player.canJump = true;
-		}
-		while(platform1.hitTestPoint(player.left()) && player.vx <=0)
-		{
-			player.x++;
-			player.vx = 0;
-		}
-		while(platform1.hitTestPoint(player.right()) && player.vx >=0)
-		{
-			player.x--;
-			player.vx = 0;
-		}
-	}
 	
+	if (
+		platform1.visible !== false &&
+		player.color === "#ff00ff"
+	) {
+		console.log("Player has the new color, yellow door disappears!");
+		platform1.visible = false;
+		platform1.y = -1000;
+	}
+
 	platform0.drawRect();
 	platform2.drawRect();
 	if (platform1.visible !== false) platform1.drawRect();
