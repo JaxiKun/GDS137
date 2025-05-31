@@ -303,7 +303,7 @@ function draw() {
         // Reset ball and paddle position
         ball.x = canvas.width / 2;
         ball.y = canvas.height - paddleHeight - 20;
-        ball.dx = .30;
+        ball.dx = .70;
         ball.dy = -1.0;
         paddle.x = (canvas.width - paddle.width) / 2;
         paddle.y = canvas.height - paddleHeight - 10;
