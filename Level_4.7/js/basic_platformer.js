@@ -119,9 +119,10 @@ function animate()
 	//---------Run this program first.
 	//---------Write a condition so that the player opens the yellow door to get the pearl-----------------------------------------
 
-	// Remove all collision checks for platform1 so the player can clip through the yellow door
-	// Comment out or remove these lines:
-	 /*
+	// 1. Make sure all platform1 collision checks are commented out (player can clip through the yellow door)
+	// (Already commented out in your code)
+
+	/*
 	while(platform1.hitTestPoint(player.top()) && player.vy <=0)
 	{
 	    player.y++;
@@ -150,13 +151,15 @@ function animate()
 	}
 	*/
 
-	// Also, remove or comment out the code that makes the door disappear on touch:
-	 /*
-	if (player.hitTestObject(platform1)) {
-	    platform1.visible = false; // Hide the door
-	    platform1.y = +1000;       // Move it out of the way
+	// 2. Make the door disappear when the player gets close (within 50px)
+	if (
+	    platform1.visible !== false &&
+	    Math.abs(player.x - platform1.x) < 50 &&
+	    Math.abs(player.y - platform1.y) < 100
+	) {
+	    platform1.visible = false;
+	    platform1.y = -1000;
 	}
-	*/
 
 	if(player.hitTestObject(goal))
 	{
